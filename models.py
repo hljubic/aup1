@@ -26,3 +26,41 @@ class Kolegij(db.Model):
 
     nositelj_id = db.Column(db.Integer, db.ForeignKey("profesori.id"), nullable=True)
 
+class Ucionica(db.Model):
+    __tablename__ = "ucionice"
+
+    id = db.Column(db.Integer, primary_key=True)
+    oznaka = db.Column(db.String(80), nullable=False)
+    kat = db.Column(db.Integer, nullable=True)
+    kapacitet = db.Column(db.Integer, nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "oznaka": self.oznaka,
+            "kapacitet": self.kapacitet
+        }
+
+class TerminNastave(db.Model):
+    __tablename__ = "termini_nastave"
+
+    id = db.Column(db.Integer, primary_key=True)
+    dan_u_tjednu = db.Column(db.String(10), nullable=False)
+    vrijeme_pocetka = db.Column(db.String(10), nullable=False)
+    trajanje = db.Column(db.Integer, nullable=False)
+
+    profesor_id = db.Column(db.Integer, db.ForeignKey("profesori.id"), nullable=True)
+    kolegij_id = db.Column(db.Integer, db.ForeignKey("kolegiji.id"), nullable=True)
+
+
+# U terminalu pokrenemo dvije naredbe:
+
+# flask db migrate -m "napravljena tablica ucionice"
+# flask db upgrade
+
+# 3. zadatak
+# napraviti klasu TerminNastave (tablice termini_nastave)
+# dodati stupce id, dan_u_tjednu (string), vrijeme_pocetka (string), trajanje (integer)
+# dodati strane ključeve na profesor_id i kolegij_id
+
+
