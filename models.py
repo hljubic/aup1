@@ -16,6 +16,15 @@ class Profesor(db.Model):
     kolegiji = db.relationship("Kolegij", backref="nositelj", lazy=True)
     # za DZ istražite što je "lazy loading"
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "ime": self.ime,
+            "prezime": self.prezime,
+            "email": self.email,
+            "titula": self.titula
+        }
+
 class Kolegij(db.Model):
     __tablename__ = "kolegiji"
 

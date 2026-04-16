@@ -1,139 +1,199 @@
-# Flask projekt – osnovno postavljanje
+# Algoritmi u primjeni
 
-Ovaj projekt prikazuje osnovno korištenje Flask frameworka u Pythonu, uključujući rad s virtualnim okruženjem (`venv`) i upravljanje paketima putem `pip`.
+Ovaj projekt je jednostavna Flask aplikacija povezana na MySQL bazu preko `Flask-SQLAlchemy` i `Flask-Migrate`.
 
----
+Projekt trenutno koristi:
+- `Flask`
+- `Flask-SQLAlchemy`
+- `Flask-Migrate`
+- `PyMySQL`
 
-## Virtual environment (ručno postavljanje)
+Baza podataka koja se koristi u projektu zove se `aup1`.
 
-Ako ne koristiš PyCharm ili drugi IDE za automatsko upravljanje okruženjem, možeš sve postaviti ručno.
+## 1. XAMPP i baza podataka
 
-### 1. Kreiranje virtualnog okruženja
+Prvo treba pokrenuti XAMPP.
 
-```bash
-python -m venv venv
+1. Otvoriti XAMPP Control Panel.
+2. Pokrenuti `Apache`.
+3. Pokrenuti `MySQL`.
+
+`Apache` nam treba zbog `phpMyAdmin`, a `MySQL` zbog same baze podataka.
+
+Nakon toga otvoriti:
+
+```text
+http://localhost/phpmyadmin
 ```
 
-### 2. Aktivacija virtualnog okruženja
+Ako traži prijavu, zadani podaci su obično:
 
-**macOS / Linux:**
+- korisničko ime: `root`
+- lozinka: nema lozinke
 
-```bash
-source venv/bin/activate
+U `phpMyAdmin` treba napraviti novu praznu bazu podataka:
+
+```text
+aup1
 ```
 
-**Windows:**
+Nije potrebno ručno praviti tablice. Tablice će se napraviti kroz migracije.
+
+## 2. Virtualno okruženje kroz PyCharm
+
+Preporuka je da se virtualno okruženje napravi kroz PyCharm.
+
+Koraci u PyCharmu:
+
+1. Otvoriti projekt.
+2. Otići na `Settings` / `Preferences`.
+3. Otvoriti `Project: ... > Python Interpreter`.
+4. Odabrati `Add Interpreter`.
+5. Odabrati `Virtualenv Environment`.
+6. Napraviti novo okruženje unutar projekta kao `.venv`.
+
+Kad je interpreter pravilno postavljen, PyCharm će koristiti to virtualno okruženje za pokretanje projekta i instalaciju paketa.
+
+## 3. Ručno kreiranje virtualnog okruženja
+
+Ako se `.venv` ne napravi kroz PyCharm, može ručno kroz terminal.
+
+### macOS / Linux
 
 ```bash
-venv\Scripts\activate
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
----
-
-## PIP i instalacija paketa
-
-### 3. Provjera PIP-a
+### Windows
 
 ```bash
-python -m pip --version
+python -m venv .venv
+.venv\Scripts\activate
 ```
 
-Ako dobiješ grešku `ModuleNotFoundError`, pokreni:
+## 4. Instalacija paketa
 
-```bash
-python -m ensurepip --upgrade
-```
-
----
-
-### 4. Instalacija Flaska
-
-```bash
-python -m pip install flask
-```
-
----
-
-### 5. Spremanje instaliranih paketa
-
-Kad instaliraš nove biblioteke:
-
-```bash
-python -m pip freeze > requirements.txt
-```
-
----
-
-### 6. Instalacija svih paketa iz requirements.txt
+Nakon aktivacije virtualnog okruženja instaliraju se paketi:
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
----
-
-## Pokretanje aplikacije
+Ako treba ručno instalirati pakete:
 
 ```bash
-python main.py
+python -m pip install flask flask-sqlalchemy flask-migrate pymysql
 ```
 
----
-
-## 📁 Preporučena struktura projekta
-
-```
-projekt/
-│── venv/
-│── main.py
-│── requirements.txt
-│── templates/
-│── static/
-```
-
----
-
-## Napomene
-
-* Virtualno okruženje (`venv`) se **ne commita na Git**
-* `requirements.txt` služi za dijeljenje ovisnosti
-* Preporučuje se uvijek koristiti:
+Ako nakon instalacije želiš osvježiti `requirements.txt`:
 
 ```bash
-python -m pip ...
+python -m pip freeze > requirements.txt
 ```
 
-umjesto samo `pip`, kako bi bio siguran da koristiš ispravan interpreter
+## 5. Važna napomena prije `flask db` naredbi
 
----
+Da bi `flask db init`, `flask db migrate` i `flask db upgrade` radili ispravno, preporuka je da se u `app.py` pokretanje servera stavi na kraj datoteke ovako:
 
-## 📄 .gitignore
-
-Dodaj `.gitignore` datoteku u root projekta:
-
-```gitignore
-# Virtual environment
-venv/
-
-# Environment variables
-.env
-.env.*
-
-# IDE
-.vscode/
-.idea/
+```python
+if __name__ == "__main__":
+    app.run(debug=True, port=5000)
 ```
 
----
+Ako `app.run(...)` stoji samostalno bez ovog uvjeta, `flask` naredbe mogu pokušati odmah pokrenuti server umjesto migracija.
 
-## Brzi start
+## 6. Flask migracije
+
+Pošto je `migrations` folder obrisan, treba ga napraviti ponovno.
+
+Sve naredbe pokretati iz root foldera projekta.
+
+### 6.1. Inicijalizacija migracija
 
 ```bash
-python -m venv venv
-venv\Scripts\activate # Windows verzija
-source venv/bin/activate   # Linux verzija
-python -m pip install flask
-python main.py
+flask db init
 ```
 
----
+Ova naredba ponovno stvara folder `migrations`.
+
+### 6.2. Kreiranje prve migracije
+
+```bash
+flask db migrate -m "pocetna migracija"
+```
+
+Ova naredba čita modele iz `models.py` i priprema skriptu za izradu tablica.
+
+### 6.3. Primjena migracija na bazu
+
+```bash
+flask db upgrade
+```
+
+Nakon ove naredbe tablice će biti napravljene u bazi `aup1`.
+
+## 7. Kada promijeniš modele
+
+Ako kasnije dodaš novu tablicu ili promijeniš postojeći model, treba ponovno pokrenuti:
+
+```bash
+flask db migrate -m "opis promjene"
+flask db upgrade
+```
+
+Primjeri:
+
+```bash
+flask db migrate -m "napravljena tablica ucionice"
+flask db upgrade
+```
+
+```bash
+flask db migrate -m "dodani termini nastave"
+flask db upgrade
+```
+
+## 8. Pokretanje aplikacije
+
+Aplikacija se pokreće naredbom:
+
+```bash
+python app.py
+```
+
+U ovom projektu server se pokreće na portu:
+
+```text
+5000
+```
+
+Pa se aplikaciji pristupa preko:
+
+```text
+http://127.0.0.1:5000
+```
+
+## 9. Kratki redoslijed rada
+
+Ako krećeš od početka, redoslijed je:
+
+1. Pokrenuti XAMPP.
+2. Uključiti `Apache` i `MySQL`.
+3. U `phpMyAdmin` napraviti bazu `aup1`.
+4. Napraviti `.venv` kroz PyCharm ili ručno.
+5. Aktivirati virtualno okruženje.
+6. Instalirati pakete iz `requirements.txt`.
+7. Pokrenuti `flask db init`.
+8. Pokrenuti `flask db migrate -m "pocetna migracija"`.
+9. Pokrenuti `flask db upgrade`.
+10. Pokrenuti aplikaciju s `python app.py`.
+
+## 10. Korisne napomene
+
+- `.venv` se ne commita na Git.
+- `requirements.txt` služi za dijeljenje paketa potrebnih za projekt.
+- `migrations` folder se commita na Git jer sadrži povijest promjena baze.
+- Ako je obrisan `migrations` folder, `flask db init` ga pravi ponovno.
+- Baza mora postojati prije pokretanja migracija, zato prvo treba napraviti `aup1` u `phpMyAdmin`.
+- Ako `flask db ...` ne radi zato što Flask ne zna koju aplikaciju treba koristiti, tada koristi eksplicitnu varijantu: `flask --app app db init`, `flask --app app db migrate` i `flask --app app db upgrade`.
