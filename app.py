@@ -3,8 +3,7 @@ from extensions import db, migrate
 from models import Profesor, Kolegij, Ucionica
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:csdigital@localhost/aup1"
-# Kod mene je password csdigital, kod vas treba ostati prazno.
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root@localhost/aup1"
 db.init_app(app)
 migrate.init_app(app, db)
 
