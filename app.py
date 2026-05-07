@@ -1,9 +1,12 @@
 from flask import Flask, jsonify, request
 from extensions import db, migrate
 from models import Profesor, Kolegij, Ucionica
+from flask_cors import CORS # <------
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root@localhost/aup1"
+CORS(app) # <------
+
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:csdigital@localhost/aup1"
 db.init_app(app)
 migrate.init_app(app, db)
 
@@ -112,7 +115,7 @@ def uredi_profesora(id):
 
     return "Napravljene promjene"
 
-app.run(debug=True, port=5000)
+app.run(debug=True, port=5005)
 
 
 
