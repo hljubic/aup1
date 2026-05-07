@@ -35,6 +35,16 @@ class Kolegij(db.Model):
 
     nositelj_id = db.Column(db.Integer, db.ForeignKey("profesori.id"), nullable=True)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "naziv": self.naziv,
+            "ects": self.ects,
+            "semestar": self.semestar,
+            "nositelj_id": self.nositelj_id,
+            "nositelj_ime_prezime": f"{self.nositelj.ime} {self.nositelj.prezime}" if self.nositelj else ""
+        }
+
 class Ucionica(db.Model):
     __tablename__ = "ucionice"
 
@@ -71,5 +81,4 @@ class TerminNastave(db.Model):
 # napraviti klasu TerminNastave (tablice termini_nastave)
 # dodati stupce id, dan_u_tjednu (string), vrijeme_pocetka (string), trajanje (integer)
 # dodati strane ključeve na profesor_id i kolegij_id
-
 
